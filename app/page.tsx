@@ -154,7 +154,7 @@ export default function HomePage() {
         {loading && (
           <div className="loader">
             <div className="spinner" />
-            Checking weather conditions…
+            Checking weather conditions… (Server may take ~60 seconds to wake up if it's asleep)
           </div>
         )}
 
@@ -188,7 +188,7 @@ export default function HomePage() {
         )}
 
         <footer className="footer">
-          <p>Powered by <a href="https://www.weatherapi.com" target="_blank" rel="noreferrer">WeatherAPI.com</a> · Built with Next.js &amp; Spring Boot · <a href="https://github.com/thebrodigy/zho.rt-web" target="_blank" rel="noopener noreferrer"style={{ textDecoration: 'underline' }}>Github ↗</a></p>
+          <p>Powered by <a href="https://www.weatherapi.com" target="_blank" rel="noreferrer">WeatherAPI.com</a> · Built with Next.js &amp; Spring Boot · <a href="https://github.com/thebrodigy/rain-check-web" target="_blank" rel="noopener noreferrer"style={{ textDecoration: 'underline' }}>Github ↗</a></p>
         </footer>
       </div>
     </>
