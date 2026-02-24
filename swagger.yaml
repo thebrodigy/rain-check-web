@@ -1,0 +1,158 @@
+openapi: 3.0.3
+info:
+  title: Rain Check API
+  description: |
+    A REST API that predicts whether you'll need an umbrella based on weather forecasts.
+    
+    Powered by [WeatherAPI.com](https://www.weatherapi.com/) under the hood, 
+    Rain Check exposes a simple interface to check rain probability for any location.
+    Predictions are cached in-memory by location for efficiency.
+  version: 1.0.0
+  contact:
+    name: Rain Check
+    url: https://github.com/thebrodigy/rain-check
+
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+
+tags:
+  - name: Predictions
+    description: Rain prediction endpoints
+
+paths:
+  /api/predictions:
+    get:
+      tags:
+        - Predictions
+      summary: Get rain prediction for a location
+      description: |
+        Returns a rain prediction for the given location based on today's forecast.
+        Uses the `daily_will_it_rain` field from WeatherAPI.com and returns the
+        daily chance of rain percentage.
+
+        Predictions are cached in-memory by location key — subsequent requests
+        for the same location will be served from the cache without a new API call.
+      operationId: getPrediction
+      parameters:
+        - name: location
+          in: query
+          required: true
+          description: |
+            The location to check rain prediction for.
+            Accepts city names, regions, or any location string supported by WeatherAPI.com.
+          schema:
+            type: string
+            example: Manila
+          examples:
+            city:
+              summary: A Philippine city
+              value: Manila
+            region:
+              summary: A province or region
+              value: Laguna
+            international:
+              summary: An international city
+              value: Tokyo
+      responses:
+        '200':
+          description: Successful rain prediction
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PredictionResponse'
+              examples:
+                willRain:
+                  summary: Rain expected
+                  value:
+                    location: Manila
+                    willRain: true
+                    chanceOfRain: "60"
+                noRain:
+                  summary: No rain expected
+                  value:
+                    location: Cebu
+                    willRain: false
+                    chanceOfRain: "10"
+        '400':
+          description: Bad request — missing or invalid location parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: 400
+                error: Bad Request
+                message: "Required parameter 'location' is missing"
+        '404':
+          description: Location not found by the weather provider
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: 404
+                error: Not Found
+                message: "Location 'XYZ123' could not be found"
+        '500':
+          description: Internal server error or upstream WeatherAPI.com failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: 500
+                error: Internal Server Error
+                message: "Failed to fetch weather data from upstream provider"
+        '503':
+          description: Service unavailable — WeatherAPI.com is unreachable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: 503
+                error: Service Unavailable
+                message: "Weather API service is currently unavailable"
+
+components:
+  schemas:
+    PredictionResponse:
+      type: object
+      required:
+        - location
+        - willRain
+        - chanceOfRain
+      properties:
+        location:
+          type: string
+          description: The location that was checked, as returned by WeatherAPI.com
+          example: Manila
+        willRain:
+          type: boolean
+          description: |
+            Whether rain is predicted for today.
+            Derived from the `daily_will_it_rain` field (1 = true, 0 = false).
+          example: true
+        chanceOfRain:
+          type: string
+          description: |
+            The percentage chance of rain today as a string (0–100).
+            Corresponds to `daily_chance_of_rain` from the WeatherAPI.com response.
+          example: "60"
+
+    ErrorResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+          description: HTTP status code
+          example: 400
+        error:
+          type: string
+          description: Short HTTP status description
+          example: Bad Request
+        message:
+          type: string
+          description: Human-readable error detail
+          example: Required parameter 'location' is missing
