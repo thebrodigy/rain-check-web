@@ -17,33 +17,40 @@ interface ThemeInfo {
 }
 
 function getThemeInfo(chance: number, willRain: boolean): ThemeInfo {
-  if (chance <= 20) return {
+    if (chance <= 5) return {
     key: 'clear',
-    label: 'Clear Skies',
+    label: 'Very Low Chance of Rain',
     icon: '☀️',
     verdict: () => 'All Clear Today',
     advice: '☀️ Leave the umbrella at home — it\'s going to be a beautiful day.',
   };
+  if (chance <= 20) return {
+    key: 'clear',
+    label: 'Low Chance of Rain',
+    icon: '☀️',
+    verdict: () => 'Mostly Dry Skies',
+    advice: '☀️ Enjoy the sunshine while it lasts.',
+  };
   if (chance <= 50) return {
     key: 'overcast',
-    label: 'Overcast',
+    label: 'Clouds Rolling In',
     icon: '⛅',
     verdict: () => willRain ? 'Light Rain Possible' : 'Mostly Dry',
-    advice: '⛅ Overcast skies, but probably dry. A light jacket wouldn\'t hurt.',
+    advice: '⛅ Keep an umbrella handy, just in case — you might get a light drizzle later.',
   };
   if (chance <= 75) return {
     key: 'rainy',
-    label: 'Rain Expected',
+    label: 'Rain Likely',
     icon: '🌧️',
     verdict: () => 'Bring an Umbrella',
     advice: '🌂 Rain is coming. Pack an umbrella — you\'ll be glad you did.',
   };
   return {
     key: 'storm',
-    label: 'Heavy Storm',
+    label: 'High Chance of Rain',
     icon: '⛈️',
-    verdict: () => 'Stay Indoors',
-    advice: '⛈️ Severe weather ahead. Bring a full raincoat, or better — stay dry inside.',
+    verdict: () => 'Downpour Ahead',
+    advice: '⛈️ Time to stay dry or get soaked.',
   };
 }
 
